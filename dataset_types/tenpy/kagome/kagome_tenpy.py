@@ -3,19 +3,27 @@ import tenpy.linalg.np_conserved as npc
 from tenpy.models.spins import SpinModel
 from tenpy.algorithms.exact_diag import ExactDiag
 
-def run_kagome_ed():
+def run_kagome_ed(lx, U=4.0, t=1.0):
     # 1. Define model parameters
     # The Kagome unit cell has 3 sites, so Lx=2, Ly=1 gives 2 * 1 * 3 = 6 sites total.
     model_params = {
         'lattice': 'Kagome',
-        'Lx': 3,
+        'Lx': lx,
         'Ly': 1,
         'S': 0.5,           # Spin-1/2
         'Jx': 1.0,          # Heisenberg isotropic couplings (J_x = J_y = J_z)
         'Jy': 1.0,
         'Jz': 1.0,
         'bc_MPS': 'finite', # Required for ExactDiag
-        'bc_y': 'open',
+        'bc_x': "periodic",
+        'bc_y': 'periodic',
+
+        #completely ignored by SpinModel; MUST USE FermiHubbardModel import 
+        "t": t,                  
+        "U": U,           
+        "mu": 0.0,                 
+        "V": 0.0, 
+
         'conserve': 'Sz'    # Conserve total Sz to reduce the matrix size blocks
     }
     
@@ -64,14 +72,13 @@ def run_kagome_ed():
     print(f"Ground state energy: {E_ground:.8f}")
     print(f"Energy per site: {E_ground / num_sites:.8f}")
 
-    # E_ground, psi_ground = ED.groundstate()
-    # all_eigenvalues = ED.E
-    
-    # print("\n--- ED Results ---")
-    # print(f"Ground state energy: {E_ground:.8f}")
-    # print(f"Energy per site: {E_ground / num_sites:.8f}")
-    # print(f"Number of eigenvalues in this sector: {len(all_eigenvalues)}")
-    # print(f"Lowest 5 eigenvalues: {all_eigenvalues[:5]}")
 
 if __name__ == "__main__":
-    run_kagome_ed()
+    # params: lx, U, t
+    for i in [0.0, 2.0, 6.0, 10.0]:
+        for j in [-0.3, 0.3, 1.0]:
+            t = j
+
+            run_kagome_ed(5,i, t)
+            run_kagome_ed(3, i, t)
+    
